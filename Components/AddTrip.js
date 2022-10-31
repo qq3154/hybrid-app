@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   StyleSheet,
   Modal,
@@ -13,11 +13,13 @@ import {
 } from "react-native";
 import { Formik, Field } from "formik";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Yup from "yup";
 
 const AddTrip = (props) => {
   const [date, setDate] = useState(new Date());
+  let fDate = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
   const [show, setShow] = useState(false);
-  const [text, setText] = useState("Not selected yet");
+  const [text, setText] = useState(fDate);
 
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
@@ -49,10 +51,17 @@ const AddTrip = (props) => {
     setText(fDate.toString());
   };
 
-  const onPressDelete = () => {
-    props.deleteTrip(props.trip.id);
-    props.setIsModalVisible();
-  };
+  const SignupSchema = Yup.object().shape({
+    name: Yup.string()
+      .min(1, "Too Short!")
+      .max(30, "Too Long!")
+      .required("Required"),
+    destination: Yup.string()
+      .min(1, "Too Short!")
+      .max(30, "Too Long!")
+      .required("Required"),
+    description: Yup.string().max(50, "Too Long!"),
+  });
 
   return (
     <Modal visible={props.isModalVisible}>
@@ -60,13 +69,21 @@ const AddTrip = (props) => {
         initialValues={{
           name: "",
           destination: "",
-          date: "",
+          date2: "",
           risk: "",
           description: "",
         }}
         onSubmit={(values) => onSubmit(values)}
+        validationSchema={SignupSchema}
       >
-        {({ handleChange, handleBlur, handleSubmit, values }) => (
+        {({
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+        }) => (
           <View style={styles.form}>
             <View style={styles.top}>
               <View style={styles.sectionTilte}>
@@ -74,13 +91,15 @@ const AddTrip = (props) => {
               </View>
 
               <Text style={styles.type}>Trip Name:</Text>
+
               <TextInput
                 style={styles.input}
                 onChangeText={handleChange("name")}
                 onBlur={handleBlur("name")}
                 value={values.name}
-                placeholder="Enter trip name"
+                placeholder="Enter trip name here"
               />
+              <Text style={styles.error}>{errors.name}</Text>
 
               <Text style={styles.type}>Trip Destination:</Text>
               <TextInput
@@ -88,17 +107,17 @@ const AddTrip = (props) => {
                 onChangeText={handleChange("destination")}
                 onBlur={handleBlur("destination")}
                 value={values.destination}
-                placeholder="Enter trip destination"
+                placeholder="Enter trip destination here"
               />
+              <Text style={styles.error}>{errors.destination}</Text>
 
               <Text style={styles.date}>
                 <Text style={styles.type}>Trip Date: </Text>
                 <Text
                   style={styles.selectDate}
-                  onChangeText={handleChange("date")}
-                  onBlur={handleBlur("date")}
+                  onChangeText={handleChange(values.name)}
+                  onBlur={handleBlur(values.name)}
                   value={text}
-                  placeholder="Enter trip date"
                 >
                   {text}
                 </Text>
@@ -120,7 +139,7 @@ const AddTrip = (props) => {
                 <Text style={styles.type}>Trip Risk Assessment:</Text>
                 <Switch
                   style={styles.switch}
-                  trackColor={{ false: "#767577", true: "#81b0gf" }}
+                  trackColor={{ false: "#767577", true: "#7e7387" }}
                   thumbColor={isEnabled ? "#81b0ff" : "#f4f3f4"}
                   ios_backgroundColor="#3e3e3e"
                   onValueChange={toggleSwitch}
@@ -134,8 +153,9 @@ const AddTrip = (props) => {
                 onChangeText={handleChange("description")}
                 onBlur={handleBlur("description")}
                 value={values.description}
-                placeholder="Enter trip description"
+                placeholder="Enter trip description here"
               />
+              <Text style={styles.error}>{errors.description}</Text>
 
               <View style={styles.submitBtn}>
                 <Button
@@ -192,7 +212,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3e3e3e",
     borderBottomWidth: 1,
-    marginBottom: 20,
   },
   date: {
     marginBottom: 5,
@@ -225,5 +244,10 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 100,
     backgroundColor: "#e0dce3",
+  },
+  error: {
+    fontSize: 10,
+    color: "red",
+    marginBottom: 20,
   },
 });

@@ -41,7 +41,7 @@ export default function App() {
         null,
         (txObj, { rows: { _array } }) => {
           setTrip(_array);
-          console.log(_array);
+          //console.log(_array);
         },
         (txObj, error) => console.log("Error ", error)
       );
@@ -113,6 +113,7 @@ export default function App() {
             style={styles.items}
             keyExtractor={(item, index) => item.id}
             data={trip}
+            showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => onPressEdit(item)}>
                 <Task
@@ -181,6 +182,8 @@ const styles = StyleSheet.create({
 
   itemsContainer: {
     height: "90%",
+    backgroundColor: "#e0dce3",
+    paddingHorizontal: 20,
   },
   items: {
     marginTop: 10,

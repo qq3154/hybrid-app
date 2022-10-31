@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Formik } from "formik";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Yup from "yup";
 
 const EditTrip = (props) => {
   const [date, setDate] = useState(new Date());
@@ -56,6 +57,18 @@ const EditTrip = (props) => {
     setText(fDate.toString());
   };
 
+  const SignupSchema = Yup.object().shape({
+    name: Yup.string()
+      .min(1, "Too Short!")
+      .max(30, "Too Long!")
+      .required("Required"),
+    destination: Yup.string()
+      .min(1, "Too Short!")
+      .max(30, "Too Long!")
+      .required("Required"),
+    description: Yup.string().max(50, "Too Long!"),
+  });
+
   const onPressDelete = () => {
     props.deleteTrip(props.trip.id);
     props.setIsModalVisible();
@@ -66,8 +79,16 @@ const EditTrip = (props) => {
       <Formik
         initialValues={props.trip}
         onSubmit={(values) => onSubmit(values)}
+        validationSchema={SignupSchema}
       >
-        {({ handleChange, handleBlur, handleSubmit, values }) => (
+        {({
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+        }) => (
           <View style={styles.form}>
             <View style={styles.top}>
               <View style={styles.sectionTilte}>
@@ -86,8 +107,9 @@ const EditTrip = (props) => {
                 onChangeText={handleChange("name")}
                 onBlur={handleBlur("name")}
                 value={values.name}
-                placeholder="Enter trip name"
+                placeholder="Enter trip name here"
               />
+              <Text style={styles.error}>{errors.name}</Text>
 
               <Text style={styles.type}>Trip Destination:</Text>
               <TextInput
@@ -95,8 +117,9 @@ const EditTrip = (props) => {
                 onChangeText={handleChange("destination")}
                 onBlur={handleBlur("destination")}
                 value={values.destination}
-                placeholder="Enter trip destination"
+                placeholder="Enter trip destination here"
               />
+              <Text style={styles.error}>{errors.destination}</Text>
 
               <Text style={styles.date}>
                 <Text style={styles.type}>Trip Date: </Text>
@@ -127,7 +150,7 @@ const EditTrip = (props) => {
                 <Text style={styles.type}>Trip Risk Assessment:</Text>
                 <Switch
                   style={styles.switch}
-                  trackColor={{ false: "#767577", true: "#81b0gf" }}
+                  trackColor={{ false: "#767577", true: "#7e7387" }}
                   thumbColor={isEnabled ? "#81b0ff" : "#f4f3f4"}
                   ios_backgroundColor="#3e3e3e"
                   onValueChange={toggleSwitch}
@@ -141,8 +164,9 @@ const EditTrip = (props) => {
                 onChangeText={handleChange("description")}
                 onBlur={handleBlur("description")}
                 value={values.description}
-                placeholder="Enter trip description"
+                placeholder="Enter trip description here"
               />
+              <Text style={styles.error}>{errors.description}</Text>
 
               <View style={styles.submitBtn}>
                 <Button
@@ -184,13 +208,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 6,
     marginBottom: 20,
   },
   tilte: {
     fontSize: 24,
     fontWeight: "bold",
   },
+  btnDelete: {},
   type: {
     fontSize: 16,
     marginBottom: 5,
@@ -199,7 +223,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3e3e3e",
     borderBottomWidth: 1,
-    marginBottom: 20,
   },
   date: {
     marginBottom: 5,
@@ -232,5 +255,10 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 100,
     backgroundColor: "#e0dce3",
+  },
+  error: {
+    fontSize: 10,
+    color: "red",
+    marginBottom: 20,
   },
 });

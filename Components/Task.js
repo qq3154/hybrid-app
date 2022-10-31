@@ -8,6 +8,12 @@ import {
 } from "react-native";
 
 const Task = (props) => {
+  let riskAssment = "";
+  if (props.riskAssessment === 0) {
+    riskAssment = "No";
+  } else {
+    riskAssment = "Yes";
+  }
   return (
     <View style={styles.container}>
       {/* <View style={styles.itemLeft}>
@@ -25,7 +31,7 @@ const Task = (props) => {
       </View>
       <View style={styles.box3}>
         <Text style={styles.textInfo}>{props.date}</Text>
-        <Text style={styles.textSubInfo}>{props.riskAssessment}</Text>
+        <Text style={styles.textSubInfo}>Risk Assessment: {riskAssment}</Text>
       </View>
     </View>
   );
@@ -69,9 +75,10 @@ const styles = StyleSheet.create({
   },
 
   textSubInfo: {
-    fontSize: 12,
+    fontSize: 11,
     height: "22%",
     marginTop: 5,
+    color: "#3e3e3e",
   },
 });
 
