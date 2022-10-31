@@ -1,112 +1,165 @@
-// import { StatusBar } from "expo-status-bar";
-// import { useEffect, useState } from "react";
-// import { Button, Modal, StyleSheet, Text, TextInput, View } from "react-native";
-
-// const EditTrip = (props) => {
-//   const add = () => {
-//     console.log("back with change");
-//     props.addTrip("a", 2);
-//     props.setIsModalVisible();
-//   };
-
-//   return (
-//     <Modal style={styles.container} visible={props.isModalVisible}>
-//       <View style={styles.form}>
-//         <Text>adasdasd</Text>
-//         <TextInput>asd</TextInput>
-//       </View>
-//       <Button title="Back" onPress={props.setIsModalVisible}></Button>
-//       <Button title="Add" onPress={add}></Button>
-//     </Modal>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "black",
-//     padding: 30,
-//     margin: 50,
-//   },
-//   form: {
-//     flex: 1,
-//     backgroundColor: "yellow",
-//     margin: 10,
-//   },
-// });
-
-// export default EditTrip;
-
-// Formik x React Native example
 import React from "react";
-import { StyleSheet, Modal, Button, TextInput, Text, View } from "react-native";
-import { Formik, Field, Form } from "formik";
+import { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  Modal,
+  Button,
+  TextInput,
+  Text,
+  View,
+  Platform,
+  Switch,
+  TouchableOpacity,
+} from "react-native";
+import { Formik } from "formik";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const EditTrip = (props) => {
-  const onSubmit = (values) => {
-    console.log(values);
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+  const [text, setText] = useState(props.trip.date);
 
+  const [isEnabled, setIsEnabled] = useState();
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+
+  useEffect(() => {
+    setDate(new Date());
+    setText(props.trip.date);
+    setIsEnabled(props.trip.risk === 1);
+  }, [props]);
+
+  const onSubmit = (values) => {
+    let risk = isEnabled ? 1 : 0;
     props.updateTrip(
       values.id,
       values.name,
       values.destination,
-      values.date,
-      1,
+      text,
+      risk,
       values.description
     );
     props.setIsModalVisible();
   };
 
+  const onChange = (event, selectDate) => {
+    const currentDate = selectDate || date;
+    setShow(Platform.OS === "ios");
+    setDate(currentDate);
+
+    let tempDate = new Date(currentDate);
+    let fDate =
+      tempDate.getDate() +
+      "/" +
+      tempDate.getMonth() +
+      "/" +
+      tempDate.getFullYear();
+    setText(fDate.toString());
+  };
+
+  const onPressDelete = () => {
+    props.deleteTrip(props.trip.id);
+    props.setIsModalVisible();
+  };
+
   return (
-    <Modal style={styles.container} visible={props.isModalVisible}>
+    <Modal visible={props.isModalVisible}>
       <Formik
         initialValues={props.trip}
         onSubmit={(values) => onSubmit(values)}
       >
         {({ handleChange, handleBlur, handleSubmit, values }) => (
-          <View>
-            <Text>Trip Name:</Text>
-            <TextInput
-              onChangeText={handleChange("name")}
-              onBlur={handleBlur("name")}
-              value={values.name}
-              placeholder="Enter trip name"
-            />
+          <View style={styles.form}>
+            <View style={styles.top}>
+              <View style={styles.sectionTilte}>
+                <Text style={styles.tilte}>EDIT TRIP</Text>
+                <Button
+                  style={styles.btnDelete}
+                  color="#ff5c5c"
+                  title=" Delete "
+                  onPress={() => onPressDelete()}
+                ></Button>
+              </View>
 
-            <Text>Trip Destination:</Text>
-            <TextInput
-              onChangeText={handleChange("destination")}
-              onBlur={handleBlur("destination")}
-              value={values.destination}
-              placeholder="Enter trip destination"
-            />
+              <Text style={styles.type}>Trip Name:</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={handleChange("name")}
+                onBlur={handleBlur("name")}
+                value={values.name}
+                placeholder="Enter trip name"
+              />
 
-            <Text>Trip Date:</Text>
-            <TextInput
-              onChangeText={handleChange("date")}
-              onBlur={handleBlur("date")}
-              value={values.date}
-              placeholder="Enter trip date"
-            />
+              <Text style={styles.type}>Trip Destination:</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={handleChange("destination")}
+                onBlur={handleBlur("destination")}
+                value={values.destination}
+                placeholder="Enter trip destination"
+              />
 
-            <Text>Trip Risk Assessment:</Text>
-            <TextInput
-              onChangeText={handleChange("risk")}
-              onBlur={handleBlur("risk")}
-              value={values.risk}
-              placeholder="Enter trip risk assessment"
-            />
+              <Text style={styles.date}>
+                <Text style={styles.type}>Trip Date: </Text>
+                <Text
+                  style={styles.selectDate}
+                  onChangeText={handleChange("date")}
+                  onBlur={handleBlur("date")}
+                  value={text}
+                  placeholder="Enter trip date"
+                >
+                  {text}
+                </Text>
+              </Text>
 
-            <Text>Trip Description:</Text>
-            <TextInput
-              onChangeText={handleChange("description")}
-              onBlur={handleBlur("description")}
-              value={values.description}
-              placeholder="Enter trip description"
-            />
+              <View style={styles.btnDate}>
+                <Button title="Pick Date" onPress={() => setShow(true)} />
+              </View>
 
-            <Button title="Back" onPress={props.setIsModalVisible}></Button>
-            <Button onPress={handleSubmit} title="Submit" />
+              {show && (
+                <DateTimePicker
+                  value={date}
+                  mode={"date"}
+                  onChange={onChange}
+                />
+              )}
+
+              <View style={styles.groupSwitch}>
+                <Text style={styles.type}>Trip Risk Assessment:</Text>
+                <Switch
+                  style={styles.switch}
+                  trackColor={{ false: "#767577", true: "#81b0gf" }}
+                  thumbColor={isEnabled ? "#81b0ff" : "#f4f3f4"}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={toggleSwitch}
+                  value={isEnabled}
+                />
+              </View>
+
+              <Text style={styles.type}>Trip Description:</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={handleChange("description")}
+                onBlur={handleBlur("description")}
+                value={values.description}
+                placeholder="Enter trip description"
+              />
+
+              <View style={styles.submitBtn}>
+                <Button
+                  style={styles.submitBtn}
+                  onPress={handleSubmit}
+                  title="Submit"
+                />
+              </View>
+            </View>
+            <View style={styles.backBtn}>
+              <TouchableOpacity
+                onPress={props.setIsModalVisible}
+                style={styles.roundBtn}
+              >
+                <Text>X</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </Formik>
@@ -118,13 +171,66 @@ export default EditTrip;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
-    padding: 30,
-    margin: 50,
   },
   form: {
-    flex: 1,
-    backgroundColor: "yellow",
-    margin: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#E8EAED",
+    height: "100%",
+  },
+  top: {
+    height: "87%",
+  },
+  sectionTilte: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 6,
+    marginBottom: 20,
+  },
+  tilte: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  type: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  input: {
+    fontSize: 14,
+    color: "#3e3e3e",
+    borderBottomWidth: 1,
+    marginBottom: 20,
+  },
+  date: {
+    marginBottom: 5,
+  },
+  selectDate: {
+    fontSize: 12,
+    fontSize: 14,
+    color: "#3e3e3e",
+  },
+  btnDate: {
+    width: 100,
+    marginBottom: 10,
+  },
+  groupSwitch: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  submitBtn: {
+    marginTop: 20,
+  },
+  backBtn: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  roundBtn: {
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    borderRadius: 100,
+    backgroundColor: "#e0dce3",
   },
 });

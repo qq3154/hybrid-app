@@ -53,8 +53,7 @@ export default function App() {
       tx.executeSql(
         "INSERT INTO trips (name, destination, date, risk, description) values (?, ?, ?, ?, ?)",
         [name, destination, date, risk, description],
-        () => fetchData(),
-        (txObj, error) => console.log("Error", error)
+        () => sqlFetchData()
       );
     });
   };
@@ -75,13 +74,15 @@ export default function App() {
 
   const sqlDeleteTrip = (id) => {
     db.transaction((tx) => {
-      tx.executeSql("DELETE FROM trips WHERE id = ? ", [id], () => fetchData());
+      tx.executeSql("DELETE FROM trips WHERE id = ? ", [id], () =>
+        sqlFetchData()
+      );
     });
   };
 
   const sqlDeleteAllTrips = () => {
     db.transaction((tx) => {
-      tx.executeSql("DELETE FROM trips", [], () => fetchData());
+      tx.executeSql("DELETE FROM trips", [], () => sqlFetchData());
     });
   };
 
@@ -97,7 +98,15 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.taskWraper}>
-        <Text style={styles.sectionTilte}>ALL TRIPS</Text>
+        <View style={styles.sectionTilte}>
+          <Text style={styles.tilte}>ALL TRIPS</Text>
+          <Button
+            style={styles.btnDelete}
+            color="#ff5c5c"
+            title=" Delete All"
+            onPress={() => sqlDeleteAllTrips()}
+          ></Button>
+        </View>
 
         <View style={styles.itemsContainer}>
           <FlatList
@@ -120,22 +129,14 @@ export default function App() {
         </View>
       </View>
 
-      <Button
-        title="Add for test"
-        onPress={() =>
-          sqlAddTrip(
-            "Summer Vacation",
-            "Da Nang",
-            "2022-10-12",
-            1,
-            "description ne"
-          )
-        }
-      ></Button>
-
-      <Button title="Delete All" onPress={sqlDeleteAllTrips}></Button>
-
-      <Button title="Add" onPress={() => setIsModalVisible(true)}></Button>
+      <View style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={() => setIsModalVisible(true)}
+          style={styles.roundBtn}
+        >
+          <Text style={styles.roundBtnText}>+</Text>
+        </TouchableOpacity>
+      </View>
 
       <AddTrip
         isModalVisible={isModalVisible}
@@ -148,6 +149,7 @@ export default function App() {
         setIsModalVisible={() => setIsEditModalVisible(false)}
         trip={currentTrip}
         updateTrip={sqlUpdateTrip}
+        deleteTrip={sqlDeleteTrip}
       />
     </View>
   );
@@ -162,10 +164,17 @@ const styles = StyleSheet.create({
   taskWraper: {
     paddingTop: 20,
     paddingHorizontal: 20,
-    height: "80%",
+    height: "85%",
   },
 
   sectionTilte: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  tilte: {
     fontSize: 24,
     fontWeight: "bold",
   },
@@ -175,5 +184,23 @@ const styles = StyleSheet.create({
   },
   items: {
     marginTop: 10,
+  },
+  backBtn: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  roundBtn: {
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 100,
+    backgroundColor: "#8ae392",
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 17,
+  },
+  roundBtnText: {
+    fontSize: 26,
   },
 });
