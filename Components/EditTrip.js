@@ -48,12 +48,8 @@ const EditTrip = (props) => {
     setDate(currentDate);
 
     let tempDate = new Date(currentDate);
-    let fDate =
-      tempDate.getDate() +
-      "/" +
-      tempDate.getMonth() +
-      "/" +
-      tempDate.getFullYear();
+    let month = tempDate.getMonth() + 1;
+    let fDate = tempDate.getDate() + "/" + month + "/" + tempDate.getFullYear();
     setText(fDate.toString());
   };
 

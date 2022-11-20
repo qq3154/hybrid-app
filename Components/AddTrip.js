@@ -17,7 +17,9 @@ import * as Yup from "yup";
 
 const AddTrip = (props) => {
   const [date, setDate] = useState(new Date());
-  let fDate = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
+
+  let month = date.getMonth() + 1;
+  let fDate = date.getDate() + "/" + month + "/" + date.getFullYear();
   const [show, setShow] = useState(false);
   const [text, setText] = useState(fDate);
 
@@ -42,12 +44,9 @@ const AddTrip = (props) => {
     setDate(currentDate);
 
     let tempDate = new Date(currentDate);
-    let fDate =
-      tempDate.getDate() +
-      "/" +
-      tempDate.getMonth() +
-      "/" +
-      tempDate.getFullYear();
+
+    let month = tempDate.getMonth() + 1;
+    let fDate = tempDate.getDate() + "/" + month + "/" + tempDate.getFullYear();
     setText(fDate.toString());
   };
 

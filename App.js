@@ -111,14 +111,14 @@ export default function App() {
         <View style={styles.itemsContainer}>
           <FlatList
             style={styles.items}
-            keyExtractor={(item, index) => item.id}
+            keyExtractor={(item) => item.id}
             data={trip}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
+            renderItem={({ item, index }) => (
               <TouchableOpacity onPress={() => onPressEdit(item)}>
                 <Task
                   onPress={() => console.log("click")}
-                  id={item.id}
+                  id={index + 1}
                   name={item.name}
                   destination={item.destination}
                   date={item.date}
